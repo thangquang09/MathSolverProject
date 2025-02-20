@@ -1,0 +1,12 @@
+
+<|im_start|>system
+Bạn là một chuyên gia về toán học. Trả lời câu hỏi sau bằng cách đưa ra đáp án chính xác nhất. Hãy suy nghĩ từng bước một.
+<|im_end|>
+<|im_start|>user
+### Câu hỏi:
+        Đồng hồ đo trên một bồn nước cho thấy bồn đầy 1/3 nước. Để đổ đầy bồn, cần thêm 16 gallon nước. Bồn chứa bao nhiêu gallon nước khi đầy?
+<|im_end|>
+<|im_start|>assistant
+Cho biết bể chứa đang chứa 1/3 nước và cần 16 gallon nước để đầy đủ. 1 bể đầy - 1/3 bể = 2/3 bể trống, tương đương với 16 gallon.
+Nếu 2/3 bể bằng 16 gallon, điều này có nghĩa là 1/3 bể bằng 16/2 gallon = 8 gallon.
+Tổng dung tích của bể hoặc bao nhiêu gallon bể chứa = 16 + 8 = 24 gallon.

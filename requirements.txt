@@ -1,0 +1,10 @@
+numpy
+scipy
+sympy
+matplotlib
+pandas
+torch
+transformers
+datasets
+tqdm
+peft

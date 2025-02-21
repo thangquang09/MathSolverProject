@@ -1,5 +1,5 @@
 MODEL_NAME = "vilm/vinallama-7b-chat" # model name
-FINETUNED_MODEL = ""
+FINETUNED_MODEL = "thangquang09/vinallama_math_solver_7B"
 
 PROMTP_FORMAT = """
 <|im_start|>system
@@ -10,6 +10,16 @@ PROMTP_FORMAT = """
 <|im_end|>
 <|im_start|>assistant
 {}
+"""
+
+PROMTP_ANS_FORMAT = """
+<|im_start|>system
+{}
+<|im_end|>
+<|im_start|>user
+{}
+<|im_end|>
+<|im_start|>assistant
 """
 
 
@@ -27,7 +37,7 @@ BIT_QUANTIZATION = "4bit" # model quantization - can change to 8bit
 
 # LORA CONFIG
 R=16 # rank of the LoRA matrices
-LORA_ALPHA=32, # scaling factor for LoRA
+LORA_ALPHA=32 # scaling factor for LoRA
 TARGET_MODULES=[
     "q_proj",
     "up_proj",
@@ -38,7 +48,7 @@ TARGET_MODULES=[
     "v_proj"
 ] # modules to apply LoRA
 LORA_DROPOUT=0.05 # dropout rate for LoRA
-BIAS="none", # bias type for LoRA
+BIAS="none" # bias type for LoRA
 TASK_TYPE="CAUSAL_LM" # generative task
 
 # MODEL GENERATE CONFIG

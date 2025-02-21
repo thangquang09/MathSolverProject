@@ -1,19 +1,14 @@
 import os
 import torch
-import transformers
-from constant import MODEL_NAME, R, LORA_ALPHA, TARGET_MODULES, LORA_DROPOUT, BIAS, TASK_TYPE, MAX_NEW_TOKENS, TEMPERATURE, TOP_P, NUM_RETURN_SEQUENCES
+from constant import (
+    MODEL_NAME, R, LORA_ALPHA, TARGET_MODULES, LORA_DROPOUT, BIAS, TASK_TYPE, 
+    MAX_NEW_TOKENS, TEMPERATURE, TOP_P, NUM_RETURN_SEQUENCES
+)
 from transformers import (
-    AutoConfig,
-    AutoModelForCausalLM,
-    AutoTokenizer,
-    BitsAndBytesConfig
+    AutoConfig, AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 )
 from peft import (
-    LoraConfig,
-    PeftConfig,
-    PeftModel,
-    get_peft_model,
-    prepare_model_for_kbit_training
+    LoraConfig, PeftConfig, PeftModel, get_peft_model, prepare_model_for_kbit_training
 )
 
 bnb_config = BitsAndBytesConfig(
@@ -37,46 +32,17 @@ def get_tokenizer():
     tokenizer.pad_token = tokenizer.eos_token
     return tokenizer
 
-def get_model(tokenizer=None, bnb_config=None, return_base_model=False, lora_config=None):
-    tokenizer = tokenizer if tokenizer is not None else get_tokenizer()
-    lora_config = lora_config if lora_config is not None else LoraConfig(
-        r=R,
-        lora_alpha=LORA_ALPHA,
-        target_modules=TARGET_MODULES,
-        lora_dropout=LORA_DROPOUT,
-        bias=BIAS,
-        task_type=TASK_TYPE
+def print_trainable_parameters(model):
+    trainable_params = 0
+    all_param = 0
+
+    for _, param in model.named_parameters():
+        all_param += param.numel()
+        if param.requires_grad:
+            trainable_params += param.numel()
+    print(
+        f"trainable params: {trainable_params} || all params: {all_param} || trainables%: {100 * trainable_params / all_param}"
     )
-    try:
-        if return_base_model:
-            model = AutoModelForCausalLM.from_pretrained(
-                MODEL_NAME,
-                device_map="auto",
-                trust_remote_code=True,
-                # quantization_config=bnb_config
-            )
-        else:
-            if torch.cuda.is_available():
-                model = AutoModelForCausalLM.from_pretrained(
-                    MODEL_NAME,
-                    device_map="auto",
-                    trust_remote_code=True,
-                    quantization_config=bnb_config
-                )
-            else:
-                model = AutoModelForCausalLM.from_pretrained(
-                    MODEL_NAME,
-                    device_map="auto",
-                    trust_remote_code=True
-                )
-            model.gradient_checkpointing_enable()
-            model = prepare_model_for_kbit_training(model)
-            model = get_peft_model(model, lora_config)
-    except Exception as e:
-        print(f"Error loading model: {e}")
-        return None
-    
-    return model
 
 def get_generate_config(tokenizer, model):
     generation_config = model.generation_config

@@ -61,10 +61,21 @@ def inference(tokenizer, model, question, choices, generation_config, device="cp
     processed_ans = processed_ans.split("<|im_start|> assistant")
     return processed_ans[1]
 
+def make_inference():
+    # USER INPUT
+    question = input("Input your question: ").strip()
+
+    choices = input("Choices (Optional): ").strip()
+    choices = choices if choices != "" else None
+
+    print("Generating Answer...")
+    ans = inference(tokenizer, model, question, choices, generation_config, device=device)
+    print(ans)
+
 if __name__ == "__main__":
     
     # LOAD MODEL
-
+    print("Loading Model")
     config = PeftConfig.from_pretrained(FINETUNED_MODEL)
 
     model = AutoModelForCausalLM.from_pretrained(
@@ -84,10 +95,4 @@ if __name__ == "__main__":
 
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-    question = """
-    Betty đang tiết kiệm tiền để mua một chiếc ví mới giá $100. Betty chỉ có một nửa số tiền cần thiết. Bố mẹ cô quyết định tặng cô $15 cho mục đích đó, và ông bà cô tặng gấp đôi số tiền của bố mẹ cô. Betty cần thêm bao nhiêu tiền nữa để mua chiếc ví?
-    """.strip()
-
-    choices = None
-    ans = inference(tokenizer, model, question, choices, generation_config, device=device)
-    print(ans)
+    make_inference()

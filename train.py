@@ -49,17 +49,20 @@ print_trainable_parameters(model)
 generation_config = get_generate_config(tokenizer, model)
 
 training_args = TrainingArguments(
-    per_device_train_batch_size=1,
+    per_device_train_batch_size=16,
     gradient_accumulation_steps=2,
-    num_train_epochs=1,
+    num_train_epochs=2,
     learning_rate=2e-4,
     fp16=True,
     save_total_limit=3,
-    logging_steps=1,
+    logging_steps=10,
     output_dir="model/experiments",
     optim="paged_adamw_8bit",
     lr_scheduler_type="cosine",
     warmup_ratio=0.05,
+    dataloader_num_workers=4,
+    report_to="none",
+    ddp_find_unused_parameters=False,  # Hỗ trợ multi-GPU
 )
 
 trainer = Trainer(

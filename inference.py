@@ -3,11 +3,10 @@ import re
 from config_model import (
     get_tokenizer,
     get_generate_config,
-    bnb_config,
-    lora_config
+    lora_config,
+    bnb_config
 )
-from constant import PROMTP_ANS_FORMAT, FINETUNED_MODEL
-from config_model import bnb_config
+from constant import PROMTP_ANS_FORMAT, FINETUNED_MODEL, IN_CONTEXT_PROMPT
 from transformers import (
     AutoConfig, AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 )
@@ -46,8 +45,7 @@ def remove_duplicate_sentences(text):
     
     return " ".join(filtered_sentences)
 
-
-def inference(tokenizer, model, question, choices, generation_config, device="cpu"):
+def inference(tokenizer, model, question, choices, generation_config, device):
     prompt = make_ans_prompt(question, choices)
     encoding = tokenizer(prompt, return_tensors="pt").to(device)
     with torch.inference_mode():
@@ -58,10 +56,10 @@ def inference(tokenizer, model, question, choices, generation_config, device="cp
         )
     ans = tokenizer.decode(outputs[0], skip_special_tokens=True)
     processed_ans = remove_duplicate_sentences(ans)
-    processed_ans = processed_ans.split("<|im_start|> assistant")
-    return processed_ans[1]
+    processed_ans = processed_ans.split("<|im_start|>assistant")
+    return processed_ans[1].strip()
 
-def make_inference():
+def make_inference(model, tokenizer, generation_config, device):
     # USER INPUT
     question = input("Input your question: ").strip()
 
@@ -69,30 +67,46 @@ def make_inference():
     choices = choices if choices != "" else None
 
     print("Generating Answer...")
-    ans = inference(tokenizer, model, question, choices, generation_config, device=device)
+    ans = inference(tokenizer, model, question, choices, generation_config, device)
     print(ans)
 
 if __name__ == "__main__":
-    
+    # Kiểm tra xem có GPU không
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    print(f"Using device: {device}")
+
     # LOAD MODEL
     print("Loading Model")
     config = PeftConfig.from_pretrained(FINETUNED_MODEL)
 
-    model = AutoModelForCausalLM.from_pretrained(
-        config.base_model_name_or_path,
-        return_dict=True,
-        quantization_config=bnb_config,
-        device_map="auto",
-        trust_remote_code=True
-    )
+    if device == "cuda":
+        # Nếu có GPU, dùng quantization 4-bit để tối ưu
+        print("GPU detected, loading model with 4-bit quantization...")
+        model = AutoModelForCausalLM.from_pretrained(
+            config.base_model_name_or_path,
+            return_dict=True,
+            quantization_config=bnb_config,  # Quantization cho GPU
+            trust_remote_code=True,
+            device_map="auto"  # Tự động phân bổ mô hình lên GPU
+        )
+    else:
+        # Nếu không có GPU, dùng FP32 trên CPU
+        print("No GPU detected, loading model in FP32 on CPU...")
+        model = AutoModelForCausalLM.from_pretrained(
+            config.base_model_name_or_path,
+            return_dict=True,
+            torch_dtype=torch.float32,  # FP32 để tránh lỗi trên CPU
+            trust_remote_code=True
+        )
+        model.to("cpu")  # Đảm bảo mô hình chạy trên CPU
 
-    tokenizer=AutoTokenizer.from_pretrained(config.base_model_name_or_path)
+    tokenizer = AutoTokenizer.from_pretrained(config.base_model_name_or_path)
     tokenizer.pad_token = tokenizer.eos_token
 
+    # Áp dụng LoRA lên mô hình
     model = PeftModel.from_pretrained(model, FINETUNED_MODEL)
 
+    # Cấu hình sinh văn bản
     generation_config = get_generate_config(tokenizer, model)
 
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
-    make_inference()
+    make_inference(model, tokenizer, generation_config, device)

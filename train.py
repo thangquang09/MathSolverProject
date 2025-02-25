@@ -72,6 +72,8 @@ trainer = Trainer(
     data_collator=DataCollatorForLanguageModeling(tokenizer, mlm=False)
 )
 model.config.use_cache = False
+
+print("Training...")
 trainer.train()
 
 # Save the final model and tokenizer

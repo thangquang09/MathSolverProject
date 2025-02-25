@@ -10,6 +10,7 @@ PROMTP_FORMAT = """
 <|im_end|>
 <|im_start|>assistant
 {}
+<|im_end|>
 """
 
 PROMTP_ANS_FORMAT = """
@@ -24,8 +25,8 @@ PROMTP_ANS_FORMAT = """
 
 
 IN_CONTEXT_PROMPT = {
-    "2": "Bạn là một chuyên gia về toán học. Trả lời câu hỏi sau bằng cách đưa ra đáp án chính xác nhất. Đáp án sẽ là một trong các lựa chọn A, B, C, D. Hãy suy nghĩ từng bước một."
-    ,"1": "Bạn là một chuyên gia về toán học. Trả lời câu hỏi sau bằng cách đưa ra đáp án chính xác nhất. Hãy suy nghĩ từng bước một."
+    "2": "Bạn là một chuyên gia về toán học. Trả lời câu hỏi sau bằng cách giải thích ngắn gọn và đưa ra đáp án chính xác nhất. Đáp án sẽ là một trong các lựa chọn A, B, C, D. Hãy suy nghĩ từng bước một."
+    ,"1": "Bạn là một chuyên gia về toán học. Trả lời câu hỏi sau bằng cách giải thích ngắn gọn và đưa ra đáp án chính xác nhất. Hãy suy nghĩ từng bước một."
 }
 
 DATASETS = [
@@ -53,8 +54,8 @@ TASK_TYPE="CAUSAL_LM" # generative task
 
 # MODEL GENERATE CONFIG
 MAX_NEW_TOKENS=200 # max length of generated tokens
-TEMPERATURE=0.7 # controls randomness in generation
-TOP_P=0.7 # nucleus sampling parameter
+TEMPERATURE=0.3 # controls randomness in generation
+TOP_P=0.9 # nucleus sampling parameter
 NUM_RETURN_SEQUENCES=1 # number of generated sequences to return
 
 # DIRECTORY

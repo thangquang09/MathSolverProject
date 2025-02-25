@@ -4,7 +4,11 @@ sympy
 matplotlib
 pandas
 torch
-transformers
+git+https://github.com/huggingface/transformers.git
 datasets
 tqdm
-peft
+git+https://github.com/huggingface/peft.git
+bitsandbytes
+git+https://github.com/huggingface/accelerate.git
+loralib
+einops
